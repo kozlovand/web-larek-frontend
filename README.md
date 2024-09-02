@@ -169,14 +169,14 @@ type TOrderPayment = Pick<IOrder, 'address' | 'payment' | 'phone' | 'email'>;
 Конструктор класса принимает инстант брокера событий\
 В полях класса хранятся следующие данные:
  
-- products: TBag[] - массив обьектов товаров корзины.
+- products: IProduct[] - массив обьектов товаров корзины.
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
-- itemsCount: number
 
 Также в классе будут присутствовать методы для работы с данными:
 - addProduct(product: IProduct): void - добавляет один товар в список товаров.
 - deleteProduct(cardID: string): void - удаляем один товар из списка товаров.
 -	getProduct(productID: string): IProduct - получаем один товар 
+- getCount(products: IProduct[]): number - получение количества товаров в корзине
 
 #### Класс FormData
 
@@ -231,7 +231,7 @@ constructor(container: HTMLElement, events: IEvents)
 - _basket: HTMLElement - элемент корзины
 - _gallery: HTMLElement - элемент куда встраиваются товары
 
-
+Методы:
 - set counter(value: number) - сеттер для добавление количества товаров в корзине
 - set _gallery(items: HTMLElement[]) - добавление товаров в галерею
 
@@ -255,6 +255,7 @@ constructor(container: HTMLElement, events: EventEmitter).
 - set items(items: HTMLElement[]) - сеттер для добавления списка товаров
 - set total(total: number) - сеттер для установки общей суммы
 - set selected(items: string[]) - переключение состояния кнопки
+- getCount(products: IProduct[]): number - получение количества товаров в корзине
 
 #### Класс ModalView
 Реализует модальное окно.
