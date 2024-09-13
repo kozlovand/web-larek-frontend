@@ -1,3 +1,5 @@
+import { IEvents } from "../components/base/events";
+
 export interface IProduct {
 	id: string;
 	title: string;
@@ -8,7 +10,7 @@ export interface IProduct {
 }
 
 export interface IOrder {
-	payment: 'online' | 'offline' ;
+	payment: string ;
 	total: number;
 	email: string;
 	phone: string;
@@ -23,22 +25,21 @@ export interface ICatalogData {
 }
 
 export interface IBasketData {
-	basket: TBag[];
-  itemsCount: number;
+	basket: IProduct[];
 	addProduct(product: IProduct): void;
 	deleteProduct(cardID: string): void;
 	getProduct(productID: string): IProduct;
-  mathCount(product: TBag[]): number;
+  getCount(products: IProduct[]): number
 }
 
 export interface IForm {
-	payment: 'online' | 'offline';
+	payment: string;
+	address: string;
 	email: string;
 	phone: string;
-	address: string;
-	setData(data: TFormInfo): void;
 	clearData(): void;
-	checkValidation(data: Record<keyof TFormInfo, string>): boolean;
+	checkValidationСontact(): boolean;
+	checkValidationAddress(): true | string;
 }
 
 
@@ -47,13 +48,10 @@ export type TProduct = Pick<
 	'title' | 'image' | 'category' | 'price' | 'description'
 >;
 
-export type TProductPublic = Pick<
-	IProduct,
-	'title' | 'image' | 'category' | 'price'
->;
+export type TVlaluePayment = 'online' | 'offline';
 
-export type TBag = Pick<IProduct & IOrder, 'title' | 'price' | 'total' | 'id'>;
+export type TFormInfo = Pick<IOrder, 'payment' | 'address' | 'phone' | 'email' >;
 
-export type TFormInfo = Pick<IOrder, 'address' | 'payment' | 'phone' | 'email' >;
+export type FormErrors = Partial<Record<keyof TFormInfo, string>>;
 
 

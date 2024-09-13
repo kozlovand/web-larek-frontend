@@ -49,12 +49,12 @@ yarn build
 ```
 
 interface IProduct {
-  id: string,
-  title: string,
-  price: number,
-  description: string,
-  image: string,
-  category: string
+ id: string;
+	title: string;
+	price: number;
+	description?: string;
+	image: string;
+	category: string;
 }
 
 ```
@@ -63,12 +63,12 @@ interface IProduct {
 
 ```
 interface IOrder {
-	payment: string,
-  total: number,
-  email: string,
-  phone: string,
-  address: string
-  items: string[]
+	payment: string;
+	total: number;
+	email: string;
+	phone: string;
+	address: string;
+	items: string[];
 }
 ```
 
@@ -88,38 +88,27 @@ interface ICatalogData {
 ```
 
 interface IBagData {
-	products: IProduct[];
-  itemsCount: number;
+	basket: IProduct[];
 	addProduct(product: IProduct): void;
 	deleteProduct(cardID: string): void;
-	buyProduct(order: TBag): void;
 	getProduct(productID: string): IProduct;
-  mathCount(product: IProduct[]): number;
+  getCount(products: IProduct[]): number
 }
 
 ```
 
-<!-- export type TProductBasic = Pick<IProduct, 'title' | 'image' | 'category' | 'price' > -->
-
-Данные товара используемые в попапе товара
+Интерфейс для модели данных формы
 
 ```
-type TProduct = Pick<IProduct, 'title' | 'image' | 'category' | 'price' | 'description' >
-
-```
-
-Данные товара используемые в попапе корзины
-
-```
-
-type TBag = Pick<IProduct & IOrder,  'title' | 'price' | 'total' >
-
-```
-Данные пользователя используемые в попапе оплаты и контактных данных
-
-```
-
-type TOrderPayment = Pick<IOrder, 'address' | 'payment' | 'phone' | 'email'>;
+interface IForm {
+	payment: string;
+	address: string;
+	email: string;
+	phone: string;
+	clearData(): void;
+	checkValidationInfo(): boolean;
+  heckValidationAddress(): true | string;
+}
 
 ```
 
@@ -155,12 +144,16 @@ type TOrderPayment = Pick<IOrder, 'address' | 'payment' | 'phone' | 'email'>;
 Конструктор класса принимает инстант брокера событий\
 В полях класса хранятся следующие данные:
 
-- productsAll: IProduct[]; - массив объектов товаров.
-- previewItem: string | null; - id товара для просмотра в модальном окне.
+- _products: IProduct[]; - массив объектов товаров.
+- _preview: string | null; - id товара для просмотра в модальном окне.
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Также в классе будут присутствовать методы для работы с данными:
-- getProduct(cardID: string): IProduct - возвращает товар по ее id
+- set products(products:IProduct[]) - установка товаров в каталог
+- get products () - возвращает каталог
+- set preview(productId: string) - установка в поле открытого товара
+- get preview () - возвращает поле preview
+- getProduct(productId: string): IProduct - возвращает товар по ее id
 
 
 #### Класс BasketData
@@ -174,24 +167,39 @@ type TOrderPayment = Pick<IOrder, 'address' | 'payment' | 'phone' | 'email'>;
 
 Также в классе будут присутствовать методы для работы с данными:
 - addProduct(product: IProduct): void - добавляет один товар в список товаров.
-- deleteProduct(cardID: string): void - удаляем один товар из списка товаров.
--	getProduct(productID: string): IProduct - получаем один товар 
-- getCount(products: IProduct[]): number - получение количества товаров в корзине
+- deleteProduct(productID: string): void - удаляем один товар из списка товаров.
+- InBasket(productId: string): boolean  - проверка на наличие в корзине.
+-	getProduct(productID: string): IProduct - получаем один товар.
+- getCount(products: IProduct[]): number - получение количества товаров в корзине.
+- getIds(): string[] - получение всех id.
+- getTotalPrice(): number  - актуальная стоимость покупки.
+- private isEmpty(): boolean - проверка на пустую корзину.
+- get basket (): IProduct[] -  возвращает корзину.
+- clear() - очистка корзины.
 
 #### Класс FormData
 
 Класс отвечает за хранение и обработку логики работы с данными пользователя\
 Конструктор класса принимает инстант брокера событий\
 В полях класса хранятся следующие данные:
-- payment: 'online' | 'offline';
+- payment: string;
 -	email: string;
 -	phone: string;
 -	address: string;
+- formErrors: FormErrors = {};
 
 Также в классе будут присутствовать методы для работы с данными:
--	setData(data: TFormInfo): void;
--	clearData(): void;
--	checkValidation(data: Record<keyof TFormInfo, string>): boolean;
+-	set payment(value: string) - установка способо оплаты.
+- set address(value: string) - установка адреса.
+- set email(value: string) - установка email.
+- set phone(value: string) - установка номера телефона.
+-	clearData(): void; - очистка.
+- getAllInfo() - получение всех полей в обьекте.
+- getErrors(): FormErrors - получение обьекта ошибок.
+- setInputAddress(field: keyof TFormInfo, value: string) - установка значения инпута адреса.
+- setInputsContact(field: keyof TFormInfo, value: string) - установка значения инпутов контактов.
+-	checkValidationСontact(): boolean - валидация полей контактов.
+- checkValidationAddress(): true | string - валидация поля адреса.
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 ### Слой представления
@@ -202,7 +210,7 @@ type TOrderPayment = Pick<IOrder, 'address' | 'payment' | 'phone' | 'email'>;
 
 #### Класс ProductView
 
-Отвечает за отображение товара, задавая в товаре данные названия, описания, изображения, категории, стоимости. Класс используется для отображения товара на странице сайта, в корзине и в попапе товара. В конструктор класса передается DOM элемент темплейта, что позволяет формировать товары разных вариантов верстки. В классе устанавливаются слушатели на все интерактивные элементы, в результате взаимодействия с которыми пользователя генерируются соответствующие события.\
+Отвечает за отображение товара, задавая в товаре данные названия, описания, изображения, категории, стоимости. Класс используется для отображения товара на странице сайта, в корзине и в попапе товара. В конструктор класса передается DOM элемент клонированного темплейта, что позволяет формировать товары разных вариантов верстки. В классе устанавливаются слушатели на все интерактивные элементы, в результате взаимодействия с которыми пользователя генерируются соответствующие события.\
 Поля класса содержат элементы разметки параметров товара, поиск которых осуществляется в конструкторе. Конструктор, кроме темплейта принимает экземпляр `EventEmitter` для инициации событий.\
 
 Наследует абстрактный класс компонент
@@ -216,11 +224,31 @@ type TOrderPayment = Pick<IOrder, 'address' | 'payment' | 'phone' | 'email'>;
 - set description(value: string)  - установка описания
 - set category(value: string) - установка категории
 - set price (value: number) - установка цены
+- set button(state: boolean) - установка текста кнопки и слушателя
+
+
+#### Класс ProductCatalogView
+
+Расширяет родительский класс ProductView. 
+Устанавливается слушатель на каждый элемент продукта.
+
+#### Класс ProductFullView 
+
+Наследует все свойства класса ProductView.
+
+#### Класс ProductBasketView
+
+Расширяет родительский класс ProductView. 
+В конструкторе находим все элементы разметки.
+Устанавливаем слушатель на кнопку
+
+Методы:
+- set index(value: number) - установка номера списка товара
 
 #### Класс CatalogView
 
 Отвечает за отображение блока товаров на главной странице и отображения счетчика в корзине.
-Метод сеттер для добавление товаров на страницу пришедших с сервера. В контрукторе принимает элемент контейнер, в который встраиваются товары.
+Метод сеттер для добавление товаров на страницу пришедших с сервера. В контрукторе принимает элемент контейнер, в который встраиваются товары. Устанавливаем слушатель на событие открытия корзины.
 
 constructor(container: HTMLElement, events: IEvents)
 
@@ -229,17 +257,17 @@ constructor(container: HTMLElement, events: IEvents)
 Поля: 
 - _counter: HTMLElement - элемент счетчика
 - _basket: HTMLElement - элемент корзины
-- _gallery: HTMLElement - элемент куда встраиваются товары
+- _catalog: HTMLElement - элемент куда встраиваются товары
 
 Методы:
 - set counter(value: number) - сеттер для добавление количества товаров в корзине
-- set _gallery(items: HTMLElement[]) - добавление товаров в галерею
+- set catalog(items: HTMLElement[]) - добавление товаров в галерею
 
 
 #### Класс BasketView
 
 Отвечает за отображение разметки корзины.
-В конструктор передаем темплейт.
+В конструктор передаем клин темплейа.
 constructor(container: HTMLElement, events: EventEmitter).
 
 Наследует абстрактный класс компонент
@@ -254,8 +282,7 @@ constructor(container: HTMLElement, events: EventEmitter).
 Методы: 
 - set items(items: HTMLElement[]) - сеттер для добавления списка товаров
 - set total(total: number) - сеттер для установки общей суммы
-- set selected(items: string[]) - переключение состояния кнопки
-- getCount(products: IProduct[]): number - получение количества товаров в корзине
+- toggleButton(state: boolean)- переключение состояния кнопки
 
 #### Класс ModalView
 Реализует модальное окно.
@@ -272,45 +299,50 @@ constructor(container: HTMLElement, events: EventEmitter).
 - open()
 - close()
 - set content(value: HTMLElement) - установка контента
+- handleEscUp (evt: KeyboardEvent) - закрытие на Esc
+- render(data?: IModal): HTMLElement - расширяет родительский метод рендера
 
 #### Класс FormView
 
 Предназначен для реализации формы\
-В constructor(form: HTMLFormElement, events: IEvents) передаем элемент темплейт формы и экземпляр `EventEmitter` для инициации событий.\
+В constructor(form: HTMLFormElement, events: IEvents) передаем элемент клон темплейта формы и экземпляр `EventEmitter` для инициации событий.\
 
 Поля класса:
 - _button: HTMLButtonElement - кнопка записи данных  
 - _error: HTMLSpanElement - ошибки валидации 
+- container: HTMLFormElement - форма
 
 Методы:
-- set submit(state: boolean) - изменение статуса блокировки кнопки 
-- set error(value: string) - установка значение в поле 'error'
+- set button(state: boolean) - изменение статуса блокировки кнопки 
+- set errors(error: string) - установка значение в поле 'error'
 - clear: () => void - очищение полей
 
-#### Класс FormViewPay
+#### Класс FormViewPayment
 
 Расширяет класс FormView. Класс отображения формы с выбором способа оплаты и вводом адреса покупателя.\
+Устанавливаем слушатель на изменения значений input c соответствующим событием. И слушатели на нажатие кнопок оплаты.
 
 Наследует абстрактный класс компонент
 
 Поля класса:
-- _payOnline: HTMLButtonElement - кнопка оплаты картой 
-- _payOffline: HTMLButtonElement- кнопка оплаты наличными 
-- _addressField: HTMLInputElement - адрес доставки 
+- payOnline: HTMLButtonElement - кнопка оплаты картой 
+- payOffline: HTMLButtonElement- кнопка оплаты наличными 
+- addressField: HTMLInputElement - адрес доставки 
 
 Методы класса:
-- togglePayment: (value: string) => void - переключение активного класса кнопок 
+- set payment(value: string) => void - переключение активного класса кнопок 
 - set address(value: string) - установка значения в поле 'address'
 
 #### Класс FormViewContact
 
 Расширяет класс FormView. Класс отображения формы с вводом электронной почты и номера телефона.\
+Устанавливаем слушатель на изменения значений input c соответствующим событием. Устанавливаем слушатель на кнопку отправки формы\
 
 Наследует абстрактный класс компонент
 
 Поля класса:
-- _emailInput: HTMLInputElement- электронная почта 
-- _phoneInput: HTMLInputElement - номер телефона 
+- emailInput: HTMLInputElement- электронная почта 
+- phoneInput: HTMLInputElement - номер телефона 
 
 
 Методы класса:
@@ -319,7 +351,7 @@ constructor(container: HTMLElement, events: EventEmitter).
 
 #### Класс SuccessView
 
-Предназначен для реализации темплейта success\
+Предназначен для реализации клона темплейта success\
 В конструктор класса передаем нужный темплейт и экземпляр `EventEmitter` для инициации событий.\
 
 Наследует абстрактный класс компонент
@@ -345,8 +377,13 @@ constructor(container: HTMLElement, events: EventEmitter).
 *Список всех событий, которые могут генерироваться в системе:*\
 *События изменения данных (генерируются классами моделями данных)*
 
-- `product:selected` - изменение открываемого товара в модальном окне
-- `product:previewClear` - очистка данных открываемого товара в модальном окне
+- `catalog:get` - загрузка каталога
+- `fullProduct:change` - событие открытия полной информации о товаре
+- `basket:change` - изменения в корзине
+- `basket:removedAllProducts` - удалены все товары
+- `form:changed` -  изменения данных формы
+- `Form: valid` - форма валидна
+- `Form: error` - ошибка в форме
 
 *События, возникающие при взаимодействии пользователя с интерфейсом (генерируются классами, отвечающими за представление)*
 
@@ -354,10 +391,14 @@ constructor(container: HTMLElement, events: EventEmitter).
 - `productBasket:add` - добавление товара в корзину
 - `productBasket:delete` - удаление товара из корзины
 - `order:open` - открытие формы оплаты и адреса
-- `constants:open`- открытие формы контактов
-- `order:submit` -  отправка формы заказов
-- `constants:submit` - отправка формы контактов
-- `success:submit` -событие, генерируемое при нажатии "За новыми покупками" в модальном окне подтверждения
-- `order:validation` - событие, сообщающее о необходимости валидации формы order
-- `constants:validation` - событие, сообщающее о необходимости валидации формы contacts
+- `modal:open` - открытие модального окна
+- `modal:close` - закрытие модального окна
+- `form:submit`- переход к следующей форме
+- `addressInput:change` -  изменение инпута адреса
+- `Payment:select` - выбор оплаты
+- `success:close` -событие, генерируемое при нажатии "За новыми покупками" в модальном окне подтверждения
+- `Order:submit` - событие, отправки заказов
+- `contacts:change` - изменение инпутов формы контактов
+- `basket:isEmpty` - событие при пустой корзине
+- `basket:open` - открытие корзины
 
