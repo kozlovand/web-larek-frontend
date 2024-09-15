@@ -14,17 +14,25 @@ export class BasketData implements IBasketData {
 		this.events.emit('basket:change', {
 			products: this._basket,
 		});
+		this.events.emit('fullProduct:change' , {
+			id: product.id
+		})
 	}
 	deleteProduct(productID: string) {
 		this._basket = this._basket.filter((item) => item.id !== productID);
-		if (this.isEmpty()) {
-			this.events.emit('basket:removedAllProducts');
-		}
+		this.events.emit('fullProduct:change' , {
+			id: productID
+		})
+	}
+
+	deleteProductInBasket(productID: string) {
+		this._basket = this._basket.filter((item) => item.id !== productID);
 		this.events.emit('basket:change', {
 			products: this._basket,
 		});
 	}
-	InBasket(productId: string) {
+
+	inBasket(productId: string) {
 		return this._basket.some((item) => item.id === productId);
 	}
 	getProduct(productID: string): IProduct {
@@ -43,7 +51,7 @@ export class BasketData implements IBasketData {
 		return this._basket.reduce((acc, item) => acc + item.price, 0);
 	}
 
-	private isEmpty() {
+	isEmpty() {
 		return this._basket.length === 0;
 	}
 

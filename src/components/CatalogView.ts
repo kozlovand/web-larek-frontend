@@ -7,18 +7,16 @@ interface IProductContainer {
   catalog: HTMLElement[]
 }
 
-
-export class CatalogView extends Component<IProductContainer> {
+export  class HeaderView extends Component<IProductContainer> {
   events: IEvents;
-  protected _catalog: HTMLElement;
   protected _counter: HTMLElement;
   protected _basket: HTMLElement;
 
   constructor(container: HTMLElement, events: IEvents) {
     super(container);
     this.events = events;
-    this._counter = document.querySelector('.header__basket-counter') as HTMLElement;
-    this._basket = document.querySelector('.header__basket') as HTMLElement;
+    this._counter = container.querySelector('.header__basket-counter') as HTMLElement;
+    this._basket = container.querySelector('.header__basket') as HTMLElement;
 
     this._basket.addEventListener('click', () => {
       if (this._counter.textContent === '0') {
@@ -27,11 +25,19 @@ export class CatalogView extends Component<IProductContainer> {
       this.events.emit('basket:open');
   });
   }
-
-
   set counter(value: number) {
     this.setText(this._counter, String(value));
 }
+}
+
+export class CatalogView extends Component<IProductContainer> {
+  events: IEvents;
+  protected _catalog: HTMLElement[];
+
+  constructor(container: HTMLElement, events: IEvents) {
+    super(container);
+  }
+
   set catalog(catalog: HTMLElement[]) {
     this.container.replaceChildren(...catalog);
 }

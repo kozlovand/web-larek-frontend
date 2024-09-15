@@ -71,11 +71,11 @@ export class FormData implements IForm {
 
 	checkValidationСontact(): boolean {
 		const errors: typeof this.formErrors = {};
-		if (!/[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+/.test(this._email)) {
-			errors.email = 'Необходимо указать email в формате: example@example.com';
+		if (!this._email) {
+			errors.email = 'Необходимо указать email';
 		}
-		if (!/\+7[0-9]{10}/.test(this._phone)) {
-			errors.phone = 'Необходимо указать телефон в формате: +7xxxxxxxxxx';
+		if (!this._phone) {
+			errors.phone = 'Необходимо указать телефон';
 		}
 		this.formErrors = errors;
 		return Object.keys(errors).length === 0;

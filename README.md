@@ -220,21 +220,31 @@ interface IForm {
 - get id(): string - геттер id возвращает уникальный id карточки
 - set id(value: string) - установка id
 - set title(value: string) - установка заголовка
-- set image(value: string) - установка картинки
-- set description(value: string)  - установка описания
-- set category(value: string) - установка категории
 - set price (value: number) - установка цены
-- set button(state: boolean) - установка текста кнопки и слушателя
 
+### Класс ProductBasketCatalogAndFullView
+
+Расширяет родительский класс ProductView. 
+
+Методы:
+
+- set category(value: string) - установка категории
+- set image(value: string) - установка картинки
 
 #### Класс ProductCatalogView
 
-Расширяет родительский класс ProductView. 
+Расширяет родительский класс ProductBasketCatalogAndFullView и ProductView. 
 Устанавливается слушатель на каждый элемент продукта.
+
 
 #### Класс ProductFullView 
 
-Наследует все свойства класса ProductView.
+Наследует все свойства класса ProductBasketCatalogAndFullView и ProductView.
+
+Методы:
+
+- set description(value: string)  - установка описания
+- set button(state: boolean) - установка текста кнопки и слушателя
 
 #### Класс ProductBasketView
 

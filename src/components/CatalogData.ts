@@ -12,7 +12,7 @@ export class CatalogData implements ICatalogData {
 
 	set products(products: IProduct[]) {
 		this._products = products;
-		this.events.emit('catalog:get', products);
+		this.events.emit('initialData:loaded')
 	}
 
 	get products() {

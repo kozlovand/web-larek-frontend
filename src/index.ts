@@ -2,7 +2,7 @@ import { ApiData } from './components/ApiData';
 import { BasketData } from './components/BasketData';
 import { BasketView } from './components/BasketView';
 import { CatalogData } from './components/CatalogData';
-import { CatalogView } from './components/CatalogView';
+import { CatalogView, HeaderView } from './components/CatalogView';
 import { FormData } from './components/FormData';
 import { FormViewContact, FormViewPayment } from './components/FormView';
 import { ModalView } from './components/ModalView';
@@ -23,6 +23,7 @@ const contactTemplete = document.querySelector("#contacts") as HTMLTemplateEleme
 const successTemplate = document.querySelector("#success") as HTMLTemplateElement;
 
 const catalogSection = document.querySelector('.gallery') as HTMLElement;
+const headerSection = document.querySelector('.header') as HTMLElement;
 
 const api = new ApiData( CDN_URL ,API_URL, settings);
 const event = new EventEmitter();
@@ -36,6 +37,7 @@ const catalog = new CatalogView(catalogSection, event);
 const modal = new ModalView(document.querySelector('#modal-container'), event);
 const formPay = new FormViewPayment(cloneTemplate(payTemplate), event);
 const formContact = new FormViewContact(cloneTemplate(contactTemplete), event);
+const header = new HeaderView(headerSection, event);
 
 event.onAll(event => {
   console.log(event.eventName, event.data)
@@ -46,7 +48,6 @@ event.onAll(event => {
 api.getProducts()
   .then((products) => {
     catalogData.products = products;
-    event.emit('initialData:loaded');
   })
   .catch(err => {
     console.error(err);
@@ -65,8 +66,9 @@ api.getProducts()
 
   // Открытие корзины
   event.on('basket:open', () => {
-     const arrayProductsBasket = basketData.basket.map((product) => {
+     const arrayProductsBasket = basketData.basket.map((product, index) => {
       const productInstant = new ProductBasketView(cloneTemplate(cardTemplateBasket), event);
+      productInstant.index = index + 1;
       return productInstant.render(product);
      })
     basket.items = arrayProductsBasket;
@@ -87,10 +89,14 @@ api.getProducts()
       productBasketView.index = index + 1;
       return productBasketView.render(product) as HTMLLIElement;
     });
-    basket.items = arrayProductsBasket ;
-    basket.toggleButton(false);
+    basket.items = arrayProductsBasket;
+    if(basketData.isEmpty()) {
+      basket.toggleButton(true);
+    } else {
+      basket.toggleButton(false);
+    }
     basket.total = basketData.getTotalPrice();
-    catalog.counter = basketData.getCount();
+    header.counter = basketData.getCount();
     modal.content = basket.render();
   });
 
@@ -102,15 +108,11 @@ api.getProducts()
   // Открытие товара по select
   event.on('fullProduct:change', (data : {id: string}) => {
     const product = catalogData.getProduct(data.id);
-    const state = basketData.InBasket(data.id);
+    const state = basketData.inBasket(data.id);
     const productFullView = new ProductFullView(cloneTemplate(cardTemplatePreview), event);
     productFullView.button = state;
+    header.counter = basketData.getCount();
     modal.render({content:productFullView.render(product)});
-  });
-
-  // Закрытие пустой корзины
-  event.on('basket:removedAllProducts', () => {
-    modal.close();
   });
 
   // Добавление в корзину
@@ -119,10 +121,15 @@ api.getProducts()
     basketData.addProduct(product);
   })
 
-  // Удаление из корзины
+  // Удаление из корзины в попапе карточки
   event.on('productBasket:delete', (data: {id:string}) => {
     basketData.deleteProduct(data.id);
     basket.total = basketData.getTotalPrice();
+  })
+
+  // Удаление из корзины в корзине
+  event.on('productBasket:deleteInBasket', (data: {id:string}) => {
+    basketData.deleteProductInBasket(data.id);
   })
   
   // Открытие формы
@@ -136,7 +143,7 @@ api.getProducts()
 
   // Выбор способа оплаты
   event.on('Payment:select', ( data: {payment: TVlaluePayment} ) => {
-    formData.payment = data.payment;
+    formPay.payment = data.payment;
   })
 
   // Изменение input address
@@ -183,7 +190,7 @@ api.getProducts()
         basketData.clear();
         formData.clearData();
         success.total = data.total;
-        catalog.counter = basketData.basket.length;
+        header.counter = basketData.basket.length;
         modal.render({content:success.render()});
         event.emit('initialData:load');
       })

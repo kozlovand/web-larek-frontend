@@ -22,6 +22,24 @@ export class FormView extends Component<IFormState> {
 			evt.preventDefault();
 			this.events.emit(`form:submit`);
 		});
+
+    this.container.addEventListener('input', (e,) => {
+      const target = e.target as HTMLInputElement;
+        const inputName = target.name;
+        const inputValue = target.value;
+      if(inputName === 'address'){
+        this.events.emit('addressInput:change', {
+          inputName,
+          inputValue,
+        });
+      } else {
+        this.events.emit(`contacts:change`, {
+          inputName,
+          inputValue
+      });
+      }
+    });
+
   }
 
   set button(state: boolean) {
@@ -51,27 +69,15 @@ export class FormViewPayment extends FormView {
     this.payOffline = this.container.cash as HTMLButtonElement;
     this.addressField = this.container.address as HTMLInputElement;
     
-    this.addressField.addEventListener('input', (e,) => {
-      const target = e.target as HTMLInputElement;
-        const inputName = target.name;
-        const inputValue = target.value;
-
-      this.events.emit('addressInput:change', {
-        inputName,
-        inputValue,
-      });
-    });
 
     this.payOnline.addEventListener('click', () => {
       this.events.emit('Payment:select',{
         payment: 'online',});
-      this.payment = 'online';
     });;
     this.payOffline.addEventListener('click', () => {
       this.events.emit('Payment:select', {
         payment: 'offline',
       });
-      this.payment = 'offline';
     });
   }
 
@@ -81,11 +87,11 @@ export class FormViewPayment extends FormView {
 
   set payment(value: string) {
     if (value === 'online') {
-      this.payOnline.classList.add('button_alt-active');
-      this.payOffline.classList.remove('button_alt-active');
+      this.toggleClass(this.payOnline, 'button_alt-active', true);
+      this.toggleClass(this.payOffline, 'button_alt-active', false);
     } else {
-      this.payOnline.classList.remove('button_alt-active');
-      this.payOffline.classList.add('button_alt-active');
+      this.toggleClass(this.payOnline, 'button_alt-active', false);
+      this.toggleClass(this.payOffline, 'button_alt-active', true);
     }
   }
 }
@@ -105,15 +111,6 @@ export class FormViewContact extends FormView {
       this.events.emit('Order:submit');
     });
 
-    this.container.addEventListener('input', (e) => {
-      const target = e.target as HTMLInputElement;
-        const inputName = target.name;
-        const inputValue = target.value;
-        this.events.emit(`contacts:change`, {
-          inputName,
-          inputValue
-      });
-    });
   }
 
   set email(value: string){
