@@ -11,9 +11,6 @@ export class BasketData implements IBasketData {
 
 	addProduct(product: IProduct) {
 		this._basket.push(product);
-		this.events.emit('basket:change', {
-			products: this._basket,
-		});
 		this.events.emit('fullProduct:change' , {
 			id: product.id
 		})

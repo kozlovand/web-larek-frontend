@@ -167,7 +167,8 @@ interface IForm {
 
 Также в классе будут присутствовать методы для работы с данными:
 - addProduct(product: IProduct): void - добавляет один товар в список товаров.
-- deleteProduct(productID: string): void - удаляем один товар из списка товаров.
+- deleteProduct(productID: string): void - удаляем один товар из списка товаров в попапе товара.
+- deleteProductInBasket(productID: string) - удаление в попапе корзины
 - InBasket(productId: string): boolean  - проверка на наличие в корзине.
 -	getProduct(productID: string): IProduct - получаем один товар.
 - getCount(products: IProduct[]): number - получение количества товаров в корзине.
