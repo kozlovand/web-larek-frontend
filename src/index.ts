@@ -71,16 +71,21 @@ api.getProducts()
       productInstant.index = index + 1;
       return productInstant.render(product);
      })
+     if (basketData.isEmpty()) {
+      basket.toggleButton(true);
+    } else {
+      basket.toggleButton(false);
+    }
     basket.items = arrayProductsBasket;
     basket.total = basketData.getTotalPrice();
     modal.render({content:basket.render()});
   })
 
   // Открытие пустой корзины
-  event.on('basket:isEmpty', () => {
-    basket.toggleButton(true);
-    modal.content = basket.render();
-  });
+  // event.on('basket:isEmpty', () => {
+   
+  //   modal.content = basket.render();
+  // });
 
   // Обновление корзины
   event.on('basket:change', (data: {products: IProduct[]} ) => {

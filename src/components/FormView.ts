@@ -86,14 +86,9 @@ export class FormViewPayment extends FormView {
   }
 
   set payment(value: string) {
-    if (value === 'online') {
-      this.toggleClass(this.payOnline, 'button_alt-active', true);
-      this.toggleClass(this.payOffline, 'button_alt-active', false);
-    } else {
-      this.toggleClass(this.payOnline, 'button_alt-active', false);
-      this.toggleClass(this.payOffline, 'button_alt-active', true);
-    }
-  }
+    this.toggleClass(this.payOnline, 'button_alt-active', value === 'online');
+    this.toggleClass(this.payOffline, 'button_alt-active', value === 'offline');
+} 
 }
 
 export class FormViewContact extends FormView {

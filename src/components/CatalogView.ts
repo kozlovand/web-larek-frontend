@@ -19,9 +19,7 @@ export  class HeaderView extends Component<IProductContainer> {
     this._basket = container.querySelector('.header__basket') as HTMLElement;
 
     this._basket.addEventListener('click', () => {
-      if (this._counter.textContent === '0') {
-      this.events.emit('basket:isEmpty');
-    }
+      // this.events.emit('basket:isEmpty');
       this.events.emit('basket:open');
   });
   }
